@@ -444,20 +444,13 @@
 
   <section class="card invite-card" id="invite"></section>
 
-  <form class="card" id="regForm">
+  <form class="card" id="regForm" data-script="https://script.google.com/macros/s/AKfycbzGmCaLJUmv-kTnRN0N3uNd7AE2FrUOIwcCNDmsa4pWi9DJd0GKId-e6voaNcXgkMM0MA/exec">
     <h2>ข้อมูลผู้ลงทะเบียน</h2>
 
-    <label>ชื่อ-นามสกุล ภาษาไทย <span class="req">*</span></label>
-    <input type="text" name="name_th" required>
-
-    <label>ชื่อ-นามสกุล ภาษาอังกฤษ <span class="req">*</span></label>
-    <input type="text" name="name_en" required>
-
-    <label>เบอร์โทรติดต่อ <span class="req">*</span></label>
-    <input type="tel" name="phone" required>
-
-    <label>Email Address <span class="req">*</span></label>
-    <input type="email" name="email" required>
+    <p class="att-lead">มากันเป็นทีม? กด "เพิ่มผู้เข้าอบรม" แล้วกรอกชื่อทุกท่านในฟอร์มเดียว ระบบคำนวณยอดโอนรวมให้</p>
+    <div class="att-list" id="attList"></div>
+    <button type="button" class="att-add" id="attAdd">+ เพิ่มผู้เข้าอบรม</button>
+    <div class="pay-total" id="payTotal" aria-live="polite"></div>
 
     <label>หลักฐานการจ่าย</label>
     <div class="qr-wrap">
@@ -471,7 +464,7 @@
       หากเกิน Promotion: <b>6,420 THB</b> [ยอดรวม VAT แล้ว]
     </div>
 
-    <label>แนบหลักฐานการโอนเงิน <span class="req">*</span></label>
+    <label id="slipLabel">แนบหลักฐานการโอนเงิน <span class="req">*</span></label>
     <label class="file-upload-btn" for="payment_proof">
       📎 เลือกไฟล์หลักฐานการโอนเงิน
     </label>
@@ -580,46 +573,7 @@
     });
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    statusEl.className = '';
-    statusEl.textContent = 'กำลังส่งข้อมูล กรุณารอสักครู่...';
-    submitBtn.disabled = true;
-
-    try{
-      const formData = new FormData(form);
-      const payload = Object.fromEntries(formData.entries());
-      delete payload.payment_proof;
-
-      const file = fileInput.files[0];
-      if(file){
-        if(file.size > 10 * 1024 * 1024) throw new Error('ไฟล์ใหญ่เกิน 10 MB');
-        payload.fileName     = file.name;
-        payload.fileMimeType = file.type;
-        payload.fileBase64   = await fileToBase64(file);
-      }
-
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'text/plain' }
-      });
-
-      statusEl.className = 'ok';
-      statusEl.textContent = '✓ ลงทะเบียนสำเร็จ! ขอบคุณที่สมัครเข้าร่วมอบรม';
-      document.getElementById('successModal').classList.add('show');
-      form.reset();
-      fileNameDisplay.textContent = 'ยังไม่ได้เลือกไฟล์';
-
-    }catch(err){
-      statusEl.className = 'err';
-      statusEl.textContent = '✗ เกิดข้อผิดพลาด: ' + err.message;
-    }finally{
-      submitBtn.disabled = false;
-    }
-  });
-
+  // ส่งแบบฟอร์ม: ดู assets/group.js (ลงทะเบียนได้หลายท่าน ส่งเข้า Google Sheet ท่านละ 1 แถว)
   document.getElementById('modalCloseBtn').addEventListener('click', () => {
     document.getElementById('successModal').classList.remove('show');
   });
@@ -757,6 +711,7 @@
  ],
  "bonus": "สิทธิ์เรียน Online Course Raspberry Pi AIoT for Automation ที่ www.tesracademy.com ฟรี (28 บทเรียน ประมาณ 10.3 ชั่วโมง)"
 };</script>
+<script src="assets/group.js"></script>
 <script src="assets/invite.js"></script>
 </body>
 </html>
